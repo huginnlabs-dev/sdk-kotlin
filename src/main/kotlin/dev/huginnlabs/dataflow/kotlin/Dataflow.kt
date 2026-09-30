@@ -63,6 +63,9 @@ private val manifestSent = AtomicBoolean(false)
  * [sendManifest]).
  */
 fun configure() {
+    // The Kotlin wrapper owns the manifest: keep the JVM core silent so the
+    // catalog reports one kotlin-language entry instead of a two-writer race.
+    Dataflow.skipManifest()
     Dataflow.configure()
     sendManifest()
 }
