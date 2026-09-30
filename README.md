@@ -73,6 +73,33 @@ Note: the pinned Java core (dataflow-sdk 0.2.0) predates the
 with the type carried as a proto3 unknown field (wire number 6), which the
 server parses back into `DB_QUERY`.
 
+## Route scanning
+
+`ScanCli` is a static route scanner for Kotlin sources: regex extraction
+over source lines (no Kotlin compiler dependency) that posts declared HTTP
+endpoints to the server catalog (POST `/api/v1/catalog`), where they are
+correlated with observed traffic.
+
+Frameworks: Ktor (`routing { get("/x") { } }`, all verbs, nested
+`route("/base")` prefixes), Spring (`@GetMapping("/x")` & co plus
+`@RequestMapping` as a class-level prefix or method-level with an explicit
+method), and Micronaut (`@Controller("/base")` + `@Get/@Post/...`).
+http4k and other DSLs are not scanned. Path parameters keep the `{id}`
+syntax as written; handlers report as `Class.method`.
+
+```bash
+java -cp ... dev.huginnlabs.dataflow.kotlin.ScanCli \
+    --dir . --service my-service \
+    --url https://dataflow.example.com --api-key $DATAFLOW_API_KEY
+```
+
+Flags: `--dir` (source root, required), `--service` (or
+`DATAFLOW_SERVICE_NAME`), `--url` (API base; falls back to
+`DATAFLOW_HTTP_URL`, then a URL-form `DATAFLOW_ENDPOINT` — a bare
+`host:port` gRPC endpoint is skipped with a message), `--api-key` (or
+`DATAFLOW_API_KEY`), and `--print` (write the catalog JSON to stdout
+instead of posting). At most 1000 routes are reported per service.
+
 ## Coroutines
 
 Span scoping follows the calling thread. Across `Dispatchers` hops pass
@@ -85,7 +112,7 @@ the core keeps the trace context in a `ThreadLocal` by design.
 <dependency>
   <groupId>dev.huginnlabs.dataflow</groupId>
   <artifactId>dataflow-sdk-kotlin</artifactId>
-  <version>0.3.0</version>
+  <version>0.4.0</version>
 </dependency>
 ```
 
