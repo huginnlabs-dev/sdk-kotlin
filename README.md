@@ -73,6 +73,28 @@ Note: the pinned Java core (dataflow-sdk 0.2.0) predates the
 with the type carried as a proto3 unknown field (wire number 6), which the
 server parses back into `DB_QUERY`.
 
+## Crash capture
+
+`capture { }` runs a block and, when it throws, records the crash on the
+current span — or a synthetic `exception` span when no trace is active —
+and then rethrows the exception unchanged. The recorded span gets status
+500, `error_message` = `throwable.toString()` (max 500 chars) and an
+`error.stack` attribute with the stack trace (whole lines from the top,
+max 8192 chars).
+
+```kotlin
+capture {
+    processOrder(order)   // a crash here is recorded, then propagates
+}
+```
+
+`captureUncaught()` installs a default uncaught-exception handler that
+records the same fields on a synthetic `uncaught exception` span and then
+chains to the handler that was installed before it — nothing is swallowed.
+`ignoreUncaught()` removes it again (restoring the previous handler). Both
+are idempotent. With the SDK disabled every path is a pure passthrough:
+no recording, exceptions and handler chains untouched.
+
 ## Route scanning
 
 `ScanCli` is a static route scanner for Kotlin sources: regex extraction
@@ -112,7 +134,7 @@ the core keeps the trace context in a `ThreadLocal` by design.
 <dependency>
   <groupId>dev.huginnlabs.dataflow</groupId>
   <artifactId>dataflow-sdk-kotlin</artifactId>
-  <version>0.4.0</version>
+  <version>0.5.0</version>
 </dependency>
 ```
 
