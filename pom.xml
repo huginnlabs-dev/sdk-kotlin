@@ -11,7 +11,7 @@
 
   <groupId>dev.huginnlabs.dataflow</groupId>
   <artifactId>dataflow-sdk-kotlin</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -19,6 +19,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <kotlin.version>2.0.20</kotlin.version>
     <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
+    <okhttp.version>4.12.0</okhttp.version>
+    <junit.version>5.10.2</junit.version>
+    <surefire.version>3.2.5</surefire.version>
   </properties>
 
   <dependencies>
@@ -32,10 +35,22 @@
       <artifactId>kotlin-stdlib</artifactId>
       <version>${kotlin.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>${okhttp.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+    <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
     <plugins>
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
@@ -46,7 +61,16 @@
             <id>compile</id>
             <goals><goal>compile</goal></goals>
           </execution>
+          <execution>
+            <id>test-compile</id>
+            <goals><goal>test-compile</goal></goals>
+          </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire.version}</version>
       </plugin>
     </plugins>
   </build>
