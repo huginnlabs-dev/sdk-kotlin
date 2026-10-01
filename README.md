@@ -95,6 +95,45 @@ chains to the handler that was installed before it — nothing is swallowed.
 are idempotent. With the SDK disabled every path is a pure passthrough:
 no recording, exceptions and handler chains untouched.
 
+## Log capture
+
+`log` (and the `info` / `warn` / `error` / `debug` shortcuts) buffers
+application log lines for shipping with trace correlation: when a span is
+active on the current thread, its `trace_id` / `span_id` ride along, so a
+line lands next to the trace that produced it in the UI. Fields are
+stringified (`toString()`, max 50) and levels normalize to
+`debug|info|warn|error` (`"warning"` → `warn`, anything unknown → `info`).
+
+```kotlin
+configure()
+
+trace("market.Checkout") { order ->
+    info("checkout started")
+    log("warn", "slow gateway", mapOf("gateway" to gw.name, "ms" to elapsed))
+}
+```
+
+A daemon flusher posts buffered lines to `POST /api/v1/logs` in batches —
+every 500 ms, or as soon as 50 lines have buffered; `flushLogs()` drains
+synchronously (useful before shutdown). At most 1000 lines ship per request;
+the buffer holds 1024 lines and drops the oldest when full.
+
+`installLogHandler()` bridges `java.util.logging`: every published record is
+forwarded through the same path (JUL severity maps to the wire levels, `{0}`
+parameters are substituted, logger name and a thrown throwable ride as
+fields). It is idempotent, and `removeLogHandler()` takes it back off.
+
+```kotlin
+installLogHandler()          // forward Logger.getGlobal()
+installLogHandler(myLogger)  // or a specific JUL logger
+removeLogHandler()
+```
+
+Best-effort by contract: logging never blocks or throws, and with the SDK
+disabled — or on a bare `host:port` endpoint with no HTTP base — every path
+is a no-op. Note: in files importing this package `error("…")` refers to
+this SDK's shortcut, not `kotlin.error` (which throws).
+
 ## Route scanning
 
 `ScanCli` is a static route scanner for Kotlin sources: regex extraction
@@ -134,7 +173,7 @@ the core keeps the trace context in a `ThreadLocal` by design.
 <dependency>
   <groupId>dev.huginnlabs.dataflow</groupId>
   <artifactId>dataflow-sdk-kotlin</artifactId>
-  <version>0.5.0</version>
+  <version>0.6.0</version>
 </dependency>
 ```
 

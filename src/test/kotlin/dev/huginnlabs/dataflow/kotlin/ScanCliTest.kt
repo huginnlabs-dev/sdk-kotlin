@@ -32,7 +32,8 @@ class ScanCliTest {
 
     private fun find(routes: List<ScannedRoute>, method: String, path: String): ScannedRoute =
         routes.firstOrNull { it.method == method && it.path == path }
-            ?: error("no $method $path in ${routes.map { it.method + " " + it.path }}")
+            // kotlin.error qualified: the SDK's log-shipping error() shadows it in this package
+            ?: kotlin.error("no $method $path in ${routes.map { it.method + " " + it.path }}")
 
     // ------------------------------------------------------------------
     // Ktor
