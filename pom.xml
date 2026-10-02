@@ -11,7 +11,7 @@
 
   <groupId>dev.huginnlabs.dataflow</groupId>
   <artifactId>dataflow-sdk-kotlin</artifactId>
-  <version>0.6.0</version>
+  <version>0.8.0</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -20,6 +20,7 @@
     <kotlin.version>2.0.20</kotlin.version>
     <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
     <okhttp.version>4.12.0</okhttp.version>
+    <ktor.version>2.3.13</ktor.version>
     <junit.version>5.10.2</junit.version>
     <surefire.version>3.2.5</surefire.version>
   </properties>
@@ -39,6 +40,27 @@
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
       <version>${okhttp.version}</version>
+    </dependency>
+    <!-- Ktor 2.x server API: compile-only because Kotlin users already have
+         it; the middleware compiles against the plugin/hook surface and is
+         inert when Ktor is absent. -->
+    <dependency>
+      <groupId>io.ktor</groupId>
+      <artifactId>ktor-server-core-jvm</artifactId>
+      <version>${ktor.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.ktor</groupId>
+      <artifactId>ktor-server-test-host-jvm</artifactId>
+      <version>${ktor.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.ktor</groupId>
+      <artifactId>ktor-server-cio-jvm</artifactId>
+      <version>${ktor.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

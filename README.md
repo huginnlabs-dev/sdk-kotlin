@@ -73,6 +73,37 @@ Note: the pinned Java core (dataflow-sdk 0.2.0) predates the
 with the type carried as a proto3 unknown field (wire number 6), which the
 server parses back into `DB_QUERY`.
 
+## Ktor middleware
+
+`ktorMiddleware` is an installable Ktor 2.x plugin that records one
+`HTTP_SERVER` span per request: named `"GET /hello"` from the request path
+and upgraded to the matched route pattern (`"GET /orders/{id}/items"`)
+after routing resolves. The response status lands on the span (`5xx` is
+also recorded as an error), and handler crashes are recorded with status
+500 and an `error.stack` attribute before the exception propagates to the
+engine unchanged.
+
+```kotlin
+configure()
+
+embeddedServer(CIO, port = 8080) {
+    install(ktorMiddleware)
+    routing { get("/orders/{id}") { ... } }
+}.start(wait = true)
+```
+
+Trace propagation works in both directions: an incoming
+`X-Dataflow-Trace-Id` request header is adopted as the span's trace id
+(joining the caller's trace, like the Java core's filter), and the same
+header is injected into the response so downstream callers can continue it.
+`trace { }` called inside a route handler joins the server span — span
+activation rides the JVM core's ThreadLocal, so across `Dispatchers` hops
+pass the span explicitly (see Coroutines).
+
+Ktor itself is a compile-only dependency of this SDK (Kotlin users already
+have it); the middleware is inert when the SDK is disabled, and no
+instrumentation failure ever breaks the request.
+
 ## Crash capture
 
 `capture { }` runs a block and, when it throws, records the crash on the
@@ -173,7 +204,7 @@ the core keeps the trace context in a `ThreadLocal` by design.
 <dependency>
   <groupId>dev.huginnlabs.dataflow</groupId>
   <artifactId>dataflow-sdk-kotlin</artifactId>
-  <version>0.6.0</version>
+  <version>0.8.0</version>
 </dependency>
 ```
 

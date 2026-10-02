@@ -33,7 +33,7 @@ import java.util.jar.JarFile
  */
 
 /** SDK version, stamped into the service manifest. Kept in sync with pom.xml. */
-const val SDK_VERSION = "0.6.0"
+const val SDK_VERSION = "0.8.0"
 
 /** Upper bound on dependencies reported in the manifest (server caps at 500). */
 private const val MAX_MANIFEST_DEPS = 500
