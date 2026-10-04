@@ -225,5 +225,6 @@ instrumentation / Dataflow SDK / OpenTelemetry), one shared load driver,
 spans exported live. Methodology, current numbers and reproduction steps:
 Numbers are published in each SDK README as they are measured; the full harness lives in the Dataflow monorepo `bench/`.
 
-Numbers for this SDK: **queued** — the harness follows the same contract
-and will land here.
+Measured for the Kotlin + java-core path (dockerized JVM, raw com.sun.net.httpserver + Dataflow.trace, one child per request, gRPC export live): baseline 172 rps, **170 rps instrumented** - ≈ -1.2%, below the run-to-run noise floor. Harness in the monorepo `bench/kotlin`.
+
+
