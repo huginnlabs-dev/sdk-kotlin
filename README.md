@@ -1,4 +1,11 @@
+<div align="center">
+
+  <img src="assets/mark.svg" width="72" alt="Dataflow mark" />
+
 # Dataflow Kotlin SDK
+
+</div>
+
 
 Idiomatic Kotlin layer over the [Java SDK](../sdk-java): `trace { }` /
 `span { }` scoping functions with automatic error recording. The gRPC
